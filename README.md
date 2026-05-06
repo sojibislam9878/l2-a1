@@ -26,11 +26,12 @@ This repository contains solutions to 7 TypeScript problems and blog write-ups o
 
 ---
 
-### 2. Generics in TypeScript
+### 2. OOP Principles in TypeScript
 
-* Writing reusable functions and components
-* Maintaining strict typing with flexibility
-* Using constraints for safer generics
+* Understanding **Encapsulation, Abstraction, Inheritance, and Polymorphism**
+* How these pillars help organize logic
+* Reducing complexity in large-scale applications
+* Writing scalable and maintainable code using OOP
 
 ---
 
