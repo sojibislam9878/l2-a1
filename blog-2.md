@@ -1,171 +1,210 @@
-# How `Pick` and `Omit` keep your code DRY in TypeScript ?
+# How the four pillars of OOP help Manage complexity in large scale TypeScript projects?
 
 ## Introduction
 
-As our TypeScript projects grow, we often find ourrself working with large interfaces especially when dealing with things like users, products, or API responses. But not every part of our application needs the full structure.
+As TypeScript projects grow, managing complexity becomes one of the biggest challenges. Codebases expand, logic gets scattered, and maintaining consistency across features can quickly become overwhelming.This is where **Object Oriented Programming (OOP)** comes in.
 
-So what do developers usually do? They start creating **smaller, specialized versions** of the same interface… and that’s where duplication creeps in.
-
-This is exactly where TypeScript’s utility types **`Pick`** and **`Omit`** come in. They let we create **clean “slices” of a master interface** without rewriting the same properties over and over again. In this blog, we’ll explore how they work and how they help keep our code **DRY (Don't Repeat Yourself)**.
+The four core pillars **Encapsulation, Abstraction, Inheritance, and Polymorphism** provide a structured way to organize code, reduce duplication, and make systems easier to understand and scale. In this blog, we’ll explore how each of these pillars works in TypeScript and how they help keep large projects manageable.
 
 ---
 
-## The problem: repeating yourself
+## 1. Encapsulation: keeping data and logic controlled
 
-Let’s say we have a master `User` interface:
+Encapsulation is about **bundling data and methods together** while restricting direct access to certain parts of an object.
 
-```ts
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  createdAt: Date;
-}
-```
-
-Now imagine we need:
-
-* A version for displaying user info (no password).
-* A version for signup (no id, no createdAt).
-
-A common (but bad) approach would be:
-
-```ts
-interface UserProfile {
-  id: number;
-  name: string;
-  email: string;
-}
-
-interface UserSignup {
-  name: string;
-  email: string;
-  password: string;
-}
-```
-
-Looks fine… until our `User` interface changes.
-
-Now we have to update multiple places manually. That’s **code duplication**, and it breaks the **DRY principle**.
-
----
-
-## Enter `Pick`: select snly what we need
-
-`Pick` allows we to create a new type by selecting specific properties from an existing one.
+In TypeScript, this is achieved using access modifiers like `private`, `protected`, and `public`.
 
 ### Example:
 
-```ts
-type UserProfile = Pick<User, "id" | "name" | "email">;
+```ts id="encap01"
+class BankAccount {
+  private balance: number;
+
+  constructor(initialBalance: number) {
+    this.balance = initialBalance;
+  }
+
+  deposit(amount: number) {
+    if (amount > 0) {
+      this.balance += amount;
+    }
+  }
+
+  getBalance() {
+    return this.balance;
+  }
+}
 ```
 
-That’s it no duplication.
+### Why it helps:
 
-If we later update the `User` interface (e.g., rename `email` to `emailAddress`), TypeScript will immediately show we where things break.
+* Prevents unintended modifications
+* Protects internal state
+* Makes debugging easier
 
-### Why this is powerful:
-
-* No repeated property definitions.
-* Always stays in sync with the source type.
-* Easier to maintain.
+Instead of changing `balance` directly, all updates go through controlled methods.
 
 ---
 
-## Enter `Omit`: Remove what we don’t need
+## 2. Abstraction: hiding complexity, exposing essentials
 
-`Omit` does the opposite it creates a type by **excluding specific properties**.
+Abstraction means **showing only what is necessary** while hiding implementation details.
+
+In TypeScript, abstraction is often implemented using **interfaces** or **abstract classes**.
 
 ### Example:
 
-```ts
-type UserWithoutPassword = Omit<User, "password">;
+```ts id="abs01"
+abstract class Payment {
+  abstract processPayment(amount: number): void;
+}
+
+class CreditCardPayment extends Payment {
+  processPayment(amount: number) {
+    console.log(`Processing credit card payment of ${amount}`);
+  }
+}
 ```
 
-This is perfect for cases like:
+### Why it helps:
 
-* Sending safe data to the frontend.
-* Removing sensitive fields.
+* Simplifies how developers interact with complex systems
+* Separates “what it does” from “how it does it”
+* Makes code easier to extend and maintain
+
+we don’t need to know how the payment works internally just how to use it.
 
 ---
 
-## Creating real "Slices" of data
+## 3. Inheritance: reusing and extending behavior
 
-Let’s build a few real world examples:
+Inheritance allows a class to **reuse properties and methods** from another class.
 
-### 1. Public User Data (no sensitive info)
+### Example:
 
-```ts
-type PublicUser = Omit<User, "password">;
+```ts id="inh01"
+class Animal {
+  move() {
+    console.log("Moving...");
+  }
+}
+
+class Dog extends Animal {
+  bark() {
+    console.log("Woof!");
+  }
+}
 ```
 
+### Why it helps:
+
+* Reduces code duplication.
+* Promotes reusability.
+* Establishes clear relationships between entities.
+
+Instead of rewriting `move()` for every animal, we define it once and reuse it.
+
 ---
 
-### 2. Signup Data (only required fields)
+## 4. Polymorphism: one interface, multiple behaviors
 
-```ts
-type UserSignup = Pick<User, "name" | "email" | "password">;
+Polymorphism allows different classes to **implement the same method in different ways**.
+
+### Example:
+
+```ts id="poly01"
+class Shape {
+  area(): number {
+    return 0;
+  }
+}
+
+class Circle extends Shape {
+  constructor(private radius: number) {
+    super();
+  }
+
+  area(): number {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+class Rectangle extends Shape {
+  constructor(private width: number, private height: number) {
+    super();
+  }
+
+  area(): number {
+    return this.width * this.height;
+  }
+}
 ```
 
----
+Usage:
 
-### 3. Update Payload (partial + selected fields)
+```ts id="poly02"
+const shapes: Shape[] = [
+  new Circle(5),
+  new Rectangle(4, 6),
+];
 
-```ts
-type UserUpdate = Partial<Pick<User, "name" | "email">>;
+shapes.forEach(shape => {
+  console.log(shape.area()); // Different behavior, same method
+});
 ```
 
-Here we combined `Pick` with `Partial` another utility type to make fields optional.
+### Why it helps:
+
+* Makes code flexible and extensible
+* Allows adding new behavior without changing existing code
+* Encourages clean, scalable architecture
 
 ---
 
-## How this keeps our code DRY
+## How these pillars work together
 
-Using `Pick` and `Omit` ensures that:
+In large scale TypeScript projects, these pillars don’t work in isolation they complement each other:
 
-### Single source of truth
+* **Encapsulation** protects our data.
+* **Abstraction** simplifies complex systems.
+* **Inheritance** promotes reuse.
+* **Polymorphism** enables flexibility.
 
-we define our structure once (`User`) and derive everything from it.
+Together, they help we:
 
-### Automatic updates
-
-Change the base interface → all derived types update automatically.
-
-### Less human error
-
-No risk of forgetting a field or mismatching types.
-
-### Cleaner codebase
-
-Less repetition = easier to read and maintain.
+* Organize logic into clear structures.
+* Avoid repetition.
+* Scale features without breaking existing code.
 
 ---
 
-## What happens without them?
+## Real world impact in large projects
 
-Without `Pick` and `Omit`, our codebase can quickly become:
+Without OOP principles, large codebases often become:
 
-* Hard to maintain.
-* Prone to bugs.
-* Full of duplicated interfaces.
+* Hard to navigate.
+* Difficult to debug.
+* Full of duplicated logic.
 
-And worst of all **inconsistent**
+With OOP:
+
+* Code is modular and predictable.
+* Teams can work independently on components.
+* New features can be added with minimal risk.
 
 ---
 
 ## Conclusion
 
-`Pick` and `Omit` are small tools with a big impact. They let we create flexible, reusable, and maintainable type structures without repeating ourself.
+The four pillars of OOP aren’t just theoretical concepts they are practical tools for managing complexity in real world TypeScript applications.
 
-Instead of rewriting interfaces, we simply **slice** what we need from a master definition.
+By applying:
 
-In short:
+* **Encapsulation** to protect state.
+* **Abstraction** to simplify usage.
+* **Inheritance** to reuse logic.
+* **Polymorphism** to enable flexibility.
 
-* Use `Pick` when we want specific fields.
-* Use `Omit` when we want to exclude fields.
-* Combine them with other utility types for even more flexibility.
+our create systems that are **cleaner, more maintainable, and easier to scale**.
 
-By doing this, we follow the **DRY principle**, reduce bugs, and keep our TypeScript codebase clean and scalable.
-
-And once we get used to this pattern it’s hard to go back.
+In large projects, that’s not just helpful it’s essential.

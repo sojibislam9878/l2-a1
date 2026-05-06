@@ -1,4 +1,3 @@
-// Problem 1: Even Numbers Array 
 const filterEvenNumbers = (numsArr: number[]): number[] => {
   const evenArray = numsArr.filter((num) => num % 2 === 0);
 
@@ -6,7 +5,6 @@ const filterEvenNumbers = (numsArr: number[]): number[] => {
 };
 
 
-// Problem 2: Reverse String 
 const reverseString = (str: string): string => {
   const reverseString = str.split("").reverse().join("");
 
@@ -14,7 +12,6 @@ const reverseString = (str: string): string => {
 };
 
 
-// Problem 3: Type Guards
 type StringOrNumber = string | number;
 
 const checkType =(prop:StringOrNumber): string=>{
@@ -26,13 +23,11 @@ const checkType =(prop:StringOrNumber): string=>{
 }
 
 
-// Problem 4: Generic Function 
 const getProperty = <T, K extends keyof T>(obj: T, key: K) : T[K]=>{
     return obj[key];
 }
 
 
-// Problem 5: Interface 
 interface Book {
   title: string;
   author: string;
@@ -47,7 +42,6 @@ const toggleReadStatus = (book: Book): Book & { isRead: boolean } => {
 };
 
 
-// Problem 6: Class 
 class Person {
     name: string;
     age: number;
@@ -72,7 +66,6 @@ class Student extends Person {
 }
 
 
-// Problem 7: Get Intersection Numbers 
 type arrayOfNumber = number[]
 
 const getIntersection = (arr1: arrayOfNumber, arr2: arrayOfNumber): arrayOfNumber => {
